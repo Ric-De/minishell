@@ -1,0 +1,70 @@
+				
+				#########  RESOURCES  ##########
+
+
+
+
+	### Articles / Books
+
+	* Tutorial - Write a Shell in C / Stephen Brennan 16 Jan, 2015
+	https://brennan.io/2015/01/16/write-a-shell-in-c/
+
+	* Building a Bash-like application  / Sreehari 26 Sep, 2016
+	https://medium.com/@ssreehari/building-a-bash-like-application-e17122609be4
+
+	* Let's Build a Linux Shell [Part I] / Mohammed Isam June 8th, 2020 (5 articles)
+	https://hackernoon.com/lets-build-a-linux-shell-part-i-bz3n3vg1
+
+	* A Beginner’s Guide to Writing a Simple Shell Script in C / yongjoon Feb 10, 2023
+	https://medium.com/@avocadi/creating-my-own-shell-for-fun-635ea0d3f7b7
+
+
+
+
+
+
+	### Websites
+
+	* The Damn Fucking Bash Manual - RTFM
+	https://www.gnu.org/software/bash/
+	https://tiswww.case.edu/php/chet/bash/bashtop.html
+	https://www.gnu.org/software/bash/manual/bash.html
+
+	
+
+
+	### Videos
+
+	* Bash Shell Scripting Tutorial for Beginners on Linux (Ubuntu) / SavvyNik
+	https://www.youtube.com/watch?v=om7Hrrr6wsk	OK - Very Simple
+
+	* LINUX _ NETWORKChuck (21 videos playlist) / NetworkChuck
+	https://www.youtube.com/watch?v=l9YxTXDiiFY&list=PLIhvC56v63IL2OjFvv_PI0B2yAXGfJLMI
+
+	* You need to learn BASH Scripting ... EP1 / NetworkChuck
+	https://www.youtube.com/watch?v=SPwyp2NG-bE
+
+	* Beginner's Guide to the Bash Terminal / Joe Collins
+	https://www.youtube.com/watch?v=oxuRxtrO2Ag
+
+	* Linux BASH Shell Script Basics Part 1 / Joe Collins
+	https://www.youtube.com/watch?v=k91lumNE2zU
+
+	* Advance Shell Scripting (21 videos playlist) / Infinite Linux
+	https://www.youtube.com/watch?v=0o3K07A9_W0&list=PLbowq_8EW6CzKLGIsz7qlrAsPAlOMWJY2
+
+
+	### Gits
+
+
+
+
+	### Any useful piece of shit
+
+
+
+
+
+
+
+
