@@ -65,7 +65,7 @@
 	https://www.youtube.com/watch?v=yTR00r8vBH8
 
 	* Shell Program Explained / hhp3
-	https://www.youtube.com/watch?v=ubt-UjcQUYg	OK. Useful.
+	https://www.youtube.com/watch?v=ubt-UjcQUYg	OK. Useful. Also, a bit boring.
 	The guy explain a simple shell made by MIT for educational purposes "xv6".
 	It hasn't most of the features we want.
 
