@@ -26,7 +26,9 @@
 	### Websites
 
 	* The Damn Fucking Bash Manual - RTFM
-	https://www.gnu.org/software/bash/
+	https://www.gnu.org/software/bash/		OK... Reading this endless thing.
+	Find a resume to go from a big picture to the specific things inside shell.
+
 	https://tiswww.case.edu/php/chet/bash/bashtop.html
 	https://www.gnu.org/software/bash/manual/bash.html
 
@@ -53,9 +55,30 @@
 	* Advance Shell Scripting (21 videos playlist) / Infinite Linux
 	https://www.youtube.com/watch?v=0o3K07A9_W0&list=PLbowq_8EW6CzKLGIsz7qlrAsPAlOMWJY2
 
+	* Custom Minishell in C Language | Command Pipelines & Process Management / Mushigarou
+	https://www.youtube.com/watch?v=Q01q0gIVDMA
+
+	* 42-minishell (42 varied video playlist) / eleman
+	https://www.youtube.com/watch?v=hMSByvFHOro&list=PLGU1kcPKHMKj5yA0RPb5AK4QAhexmQwrW
+
+	* Oceano
+	https://www.youtube.com/watch?v=yTR00r8vBH8
+
+	* Shell Program Explained / hhp3
+	https://www.youtube.com/watch?v=ubt-UjcQUYg	OK. Useful.
+	The guy explain a simple shell made by MIT for educational purposes "xv6".
+	It hasn't most of the features we want.
+
+
+
+
+
+
 
 	### Gits
-
+	
+	* Poherman ?? Pol
+	* Javier BCN42
 
 
 
