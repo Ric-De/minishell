@@ -32,7 +32,8 @@
 	https://tiswww.case.edu/php/chet/bash/bashtop.html
 	https://www.gnu.org/software/bash/manual/bash.html
 
-	
+	* The Open Group Base Specifications Issue 7, 2018 edition	- Like the bash manual
+	https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html
 
 
 	### Videos
