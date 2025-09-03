@@ -18,6 +18,12 @@
 	* A Beginner’s Guide to Writing a Simple Shell Script in C / yongjoon Feb 10, 2023
 	https://medium.com/@avocadi/creating-my-own-shell-for-fun-635ea0d3f7b7
 
+	* Very good huge book to understand how to design and build a programm language.
+	[Lexing/parsing/tokenization]
+	https://craftinginterpreters.com/ (read on-ine)
+
+	
+
 
 
 
@@ -62,12 +68,17 @@
 	* 42-minishell (42 varied video playlist) / eleman
 	https://www.youtube.com/watch?v=hMSByvFHOro&list=PLGU1kcPKHMKj5yA0RPb5AK4QAhexmQwrW
 
-	* Oceano
-	https://www.youtube.com/watch?v=yTR00r8vBH8
+	* Shell Simple Implementation / Oceano
+	https://www.youtube.com/watch?v=yTR00r8vBH8	OK. Good basic stuff. Side docs!!!
+
+	But, better are the side documentation that he put together: craftinterpreters book,
+	many articles, and other videos with simple shells implemetations. 
 
 	* Shell Program Explained / hhp3
 	https://www.youtube.com/watch?v=ubt-UjcQUYg	OK. Useful. Also, a bit boring.
-	The guy explain a simple shell made by MIT for educational purposes "xv6".
+
+	The guy explain a simple shell implementation made by MIT for educational purposes
+	"xv6". The video is a guy showing he program in paper sheets. 
 	It hasn't most of the features we want.
 
 
