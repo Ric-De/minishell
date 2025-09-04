@@ -18,10 +18,19 @@
 	* A Beginner’s Guide to Writing a Simple Shell Script in C / yongjoon Feb 10, 2023
 	https://medium.com/@avocadi/creating-my-own-shell-for-fun-635ea0d3f7b7
 
-	* Very good huge book to understand how to design and build a programm language.
+=>	* Very good huge book to understand how to design and build a programm language.
 	[Lexing/parsing/tokenization]
 	https://craftinginterpreters.com/ (read on-ine)
 
+=>	* https://www.cs.purdue.edu/homes/grr/SystemsProgrammingBook/Book/Chapter5-WritingYour
+	OwnShell.pdf
+	2014 Gustavo Rodriguez-Rivera and Justin Ennen,Introduction to Systems Programming:
+	a Hands-on Approach. Chapter 5 			OK. Good reference. Code in C++
+
+	How o build Command Table(tokenization) using Lex and Yacc/Bison. Use of all the stuff
+	we had learn on Pipex project. dup() wait() pid() execvp() fork() etc...
+
+	*
 	
 
 
@@ -68,7 +77,7 @@
 	* 42-minishell (42 varied video playlist) / eleman
 	https://www.youtube.com/watch?v=hMSByvFHOro&list=PLGU1kcPKHMKj5yA0RPb5AK4QAhexmQwrW
 
-	* Shell Simple Implementation / Oceano
+=>	* Shell Simple Implementation / Oceano
 	https://www.youtube.com/watch?v=yTR00r8vBH8	OK. Good basic stuff. Side docs!!!
 
 	But, better are the side documentation that he put together: craftinterpreters book,
@@ -80,7 +89,11 @@
 	The guy explain a simple shell implementation made by MIT for educational purposes
 	"xv6". The video is a guy showing he program in paper sheets. 
 	It hasn't most of the features we want.
+	
+	* https://aosabook.org/en/v1/bash.html - The Architecture of Open Source Applications
+	(Volume 1) The Bourne-Again Shell / by Chet Ramey
 
+	
 
 
 
