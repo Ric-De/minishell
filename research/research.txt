@@ -29,7 +29,7 @@
 
 	How o build Command Table(tokenization) using Lex and Yacc/Bison. Use of all the stuff
 	we had learn on Pipex project. dup() wait() pid() execvp() fork() etc...
-
+	
 	*
 	
 
@@ -90,9 +90,13 @@
 	"xv6". The video is a guy showing he program in paper sheets. 
 	It hasn't most of the features we want.
 	
-	* https://aosabook.org/en/v1/bash.html - The Architecture of Open Source Applications
+=>	* https://aosabook.org/en/v1/bash.html - The Architecture of Open Source Applications
 	(Volume 1) The Bourne-Again Shell / by Chet Ramey
-
+	
+	Excelent explanation on how BASH works and a little bit of history of this programm.
+	The drawing is very illustrative about behavior of the programm.
+	Another scheme to explain the functioning could be found here:
+	https://whimsical.com/minishell-architecture-big-picture-7b9N8PL3qHrddbs977mQ2J
 	
 
 
