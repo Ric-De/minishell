@@ -19,8 +19,16 @@
 	https://medium.com/@avocadi/creating-my-own-shell-for-fun-635ea0d3f7b7
 
 =>	* Very good huge book to understand how to design and build a programm language.
-	[Lexing/parsing/tokenization]
-	https://craftinginterpreters.com/ (read on-ine)
+	[Lexing/parsing/tokenization]			OK. Amazing Book!
+	https://craftinginterpreters.com/ (read on-ine)Downloaded it, so you can write notes.
+
+	Resume per reading chunks:
+	# Today, September 4, I read until page 38. Actually, here starts what we want of this
+	ook. The Map of the territory is good to read. The Lox lang is about the language and
+	the choices the author made to create the lang.
+	The chapter Tree-Walk Interpreter is the essence for our job. Tomorrow I gonna advance
+	on it.
+	# Today, September...
 
 =>	* https://www.cs.purdue.edu/homes/grr/SystemsProgrammingBook/Book/Chapter5-WritingYour
 	OwnShell.pdf
