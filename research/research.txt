@@ -38,7 +38,8 @@
 	How o build Command Table(tokenization) using Lex and Yacc/Bison. Use of all the stuff
 	we had learn on Pipex project. dup() wait() pid() execvp() fork() etc...
 	
-	*
+	* Minishell: Building a mini-bash (a @42 project) / MannBell Jul/2023 
+	https://m4nnb3ll.medium.com/minishell-building-a-mini-bash-a-42-project-b55a10598218
 	
 
 
