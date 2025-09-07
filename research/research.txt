@@ -91,8 +91,15 @@
 	* Linux BASH Shell Script Basics Part 1 / Joe Collins
 	https://www.youtube.com/watch?v=k91lumNE2zU
 
-	* Advance Shell Scripting (21 videos playlist) / Infinite Linux
+=>	* Advance Shell Scripting (21 videos playlist) / Infinite Linux
 	https://www.youtube.com/watch?v=0o3K07A9_W0&list=PLbowq_8EW6CzKLGIsz7qlrAsPAlOMWJY2
+
+	- Watched the last 3 of the playlist. very useful to see how the multiple process, 
+	file descriptors (fd) and pipes interact with each other through tables.
+	Need to put all this shit together for minishell and all commands being executed.
+
+
+
 
 	* Custom Minishell in C Language | Command Pipelines & Process Management / Mushigarou
 	https://www.youtube.com/watch?v=Q01q0gIVDMA
@@ -110,7 +117,7 @@
 	https://www.youtube.com/watch?v=ubt-UjcQUYg	OK. Useful. Also, a bit boring.
 
 	The guy explain a simple shell implementation made by MIT for educational purposes
-	"xv6". The video is a guy showing he program in paper sheets. 
+	"xv6". The video is a guy showing his program in paper sheets. 
 	It hasn't most of the features we want.
 	
 =>	* https://aosabook.org/en/v1/bash.html - The Architecture of Open Source Applications
