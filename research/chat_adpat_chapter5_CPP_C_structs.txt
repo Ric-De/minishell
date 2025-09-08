@@ -1,0 +1,442 @@
+Hey, are you familiar with the chapter 5 of this book:
+© 2014 Gustavo Rodriguez-Rivera and Justin Ennen,​
+Introduction to Systems Programming: a
+​Hands-on Approach (V2015-2-25)
+(systemsprogrammingbook.com)
+ChatGPT said:
+
+Absolutely—I’m familiar with Chapter 5: “Writing Your Own Shell” from Introduction to Systems Programming: A Hands-on Approach by Gustavo Rodriguez-Rivera and Justin Ennen (2014) 
+Purdue CS
+Studocu
+.
+
+Here's a concise overview of what that chapter covers:
+
+Chapter 5: Writing Your Own Shell
+1. Overview
+
+This chapter guides you through building a basic command-line shell from scratch. It's part of the book’s practical learning approach—"You really understand something until you program it." 
+Purdue CS
+
+2. Shell Structure: Parser, Executor, and Subsystems
+
+The shell’s architecture is divided into three main components:
+
+Parser: Reads the command line (e.g., ls -al) and builds a Command Table data structure containing parsed commands and arguments.
+
+Executor: Carries out the commands, handling redirection, piping, background execution, and more.
+
+Shell Subsystems: Additional features like variable expansion, command history, line editing, etc. 
+Purdue CS
+Studocu
+
+3. Data Structures
+
+The book presents C++-style struct definitions (but you can adapt them to C) for two primary constructs:
+
+SimpleCommand
+struct SimpleCommand {
+  int _numberOfAvailableArguments;
+  int _numberOfArguments;
+  char **_arguments;
+  SimpleCommand();
+  void insertArgument(char *argument);
+};
+
+Command
+struct Command {
+  int _numberOfAvailableSimpleCommands;
+  int _numberOfSimpleCommands;
+  SimpleCommand **_simpleCommands;
+  char *_outFile;
+  char *_inputFile;
+  char *_errFile;
+  int _background;
+  void prompt();
+  void print();
+  void execute();
+  void clear();
+  Command();
+  void insertSimpleCommand(SimpleCommand *simpleCommand);
+  static Command _currentCommand;
+  static SimpleCommand *_currentSimpleCommand;
+};
+``` :contentReference[oaicite:3]{index=3}
+
+These structures are used to accumulate parsed elements of the command line—especially handling multiple piped commands and I/O redirection.
+
+---
+
+### 4. **Lexing and Grammar**
+The chapter walks through:
+- Using **lex** (or flex) to tokenize input (`WORD`, `PIPE`, `GREAT`, etc.).
+- Building tokens such as `>`, `<`, `>>`, `|`, `&`, WORD, and NEWLINE.
+- Assembling parser grammar rules using **yacc (or bison)** to support command lists, arguments, pipes, I/O modifiers, background execution, and error recovery. :contentReference[oaicite:4]{index=4}
+
+---
+
+### 5. **Executor Logic: Handling Pipes and Redirection**
+Key steps include:
+- Saving the original `stdin` and `stdout` using `dup()`.
+- Iterating through each *SimpleCommand* to:
+  - Set up proper `stdin` and `stdout` based on input/output redirection (`< infile`, `> outfile`) or pipe creation.
+  - Fork a child process, then call `execvp()` to execute the command.
+- Restore original standard I/O and wait for the last command unless it's running in the background. :contentReference[oaicite:5]{index=5}
+
+---
+
+### 6. **Wildcard Expansion**
+The chapter also includes logic for expanding Unix-style wildcards (`*`, `?`). It does this by:
+1. Translating the wildcard pattern into a regex:
+   - `*` → `.*`
+   - `?` → `.`
+   - Anchoring with `^` and `$`
+2. Compiling the regex with `regcomp()`
+3. Reading the current directory and using `regexec()` to match filenames
+4. Inserting matched filenames via `strdup()` into the command's arguments :contentReference[oaicite:6]{index=6}
+
+---
+
+##  Summary Table
+
+| Topic                        | Description |
+|-----------------------------|-------------|
+| **Parser & Lexer**          | Build an AST-like structure using lex/yacc |
+| **Command Data Structures** | `SimpleCommand` and `Command` hold parsed input |
+| **Executor**                | Handles redirection, piping, forking, execution |
+| **Wildcard Expansion**      | Translate wildcards to regex, match filenames, expand |
+
+---
+
+Would you like to dive deeper into a particular part—like see code snippets, better understand how pipes are implemented, or explore command parsing in lex/yacc? Just let me know!
+::contentReference[oaicite:7]{index=7}
+
+You said:
+Ahh, do you know if norminette from 42 school accepts a struct bigger like that one?
+ChatGPT said:
+
+Ah, nice catch 😅 You’re connecting that Command/SimpleCommand struct from the book with Norminette (the coding style checker used at 42).
+
+Here’s the situation:
+
+🔎 Norminette and Structs
+
+Structs are allowed in 42 projects (you’ll see them often in minishell, push_swap, cub3d, etc.).
+
+Size doesn’t matter for Norminette → it doesn’t care if the struct has 2 fields or 20 fields.
+
+What Norminette checks:
+
+Line length (max 80 chars)
+
+Function length (max 25 lines)
+
+File length (max ~5 functions / 5 globals)
+
+Indentation, naming, forbidden keywords, etc.
+
+So you can absolutely have a big struct with many members. It’s common in minishell to have a big “global” state struct (e.g. t_shell, t_command).
+
+⚠️ What to watch for
+
+Long struct definitions: If your struct definition itself goes beyond 25 lines, Norminette might complain (because it counts as a “function-like block”).
+
+Global variables: Declaring a global Command _currentCommand; may trigger a Norminette warning (since globals are discouraged). Instead, pass a pointer to your struct around or wrap it in a singleton-style approach.
+
+Naming: Norminette expects snake_case for variables/struct fields (number_of_arguments not NumberOfArguments).
+
+✅ Typical workaround in 42
+
+Instead of putting everything into one giant struct, students often:
+
+Define several smaller structs:
+
+typedef struct s_token {
+    char    *value;
+    int     type;
+}   t_token;
+
+typedef struct s_command {
+    t_token **tokens;
+    int      token_count;
+    int      background;
+}   t_command;
+
+typedef struct s_shell {
+    t_command  *cmds;
+    int         cmd_count;
+    char       *input_file;
+    char       *output_file;
+}   t_shell;
+
+
+This way, no single struct gets “too big” in terms of line count, and it’s cleaner for Norminette.
+
+👉 So to answer directly: Yes, Norminette accepts big structs. The only potential issue is if the struct definition itself is longer than 25 lines or violates naming/indentation rules.
+
+Do you want me to show you how the book’s Command + SimpleCommand structs could be rewritten in 42-style (t_command, t_simple_command) to stay 100% Norminette-compliant?
+
+You said:
+The current context is that is a team work. Me and my partner in this endeavor split the job and I have the second part. Here it is:
+
+Team mate: main/input/line_handling, lexer, parser → output AST 
+Me: Expansion(including globbling), recursive execution, signal handling, built_ins
+
+So, I need to work without having his part done. Therefore I am thinking in build a "blackbox" that give his part done and start building from there. Because that the structs to receive the data (commands, pipes, any other shit) need to be very according to the project.
+ChatGPT said:
+
+Perfect, thanks for giving me the context 👌 You’re building minishell (42 project), and you’re on the back half:
+
+Your teammate → input → lexer → parser → AST
+
+You → expansion (env, wildcards) → executor (recursive, pipes, redirections) → signals → builtins
+
+Since your teammate’s parser isn’t ready yet, you want to mock a black box that outputs something equivalent to the AST / command table, so you can develop + test your side independently. That’s exactly the right approach ✅
+
+🔑 Key idea
+
+You need a common struct definition that both of you agree on.
+
+Parser will fill it (from tokens/AST).
+
+Your part will consume it (expand + execute).
+
+So your "blackbox" just fakes that struct being filled in.
+
+✅ Typical data structures (42 minishell style)
+
+Here’s a simplified 42-friendly version (snake_case, smaller structs, no globals):
+
+typedef struct s_redir
+{
+    char            *filename;
+    int             type;   // 0: input (<), 1: output (>), 2: append (>>), 3: heredoc (<<)
+    struct s_redir  *next;
+}   t_redir;
+
+typedef struct s_command
+{
+    char            **argv;      // ["ls", "-l", NULL]
+    t_redir         *redir;      // linked list of redirections
+    struct s_command *next;      // next command in a pipeline
+}   t_command;
+
+typedef struct s_pipeline
+{
+    t_command   *commands;   // linked list of commands connected by pipes
+    int         background;  // 1 if ends with &
+}   t_pipeline;
+
+🛠 How this fits your teamwork
+
+Your teammate (parser) will end up building something like t_pipeline *parse(char *line).
+
+You will write functions like:
+
+expand_pipeline(t_pipeline *pl);
+
+execute_pipeline(t_pipeline *pl);
+
+So you don’t need his code yet — you just write a small blackbox generator, for example:
+
+t_pipeline *mock_pipeline(void)
+{
+    t_pipeline *pl = malloc(sizeof(t_pipeline));
+    pl->background = 0;
+    
+    t_command *cmd1 = malloc(sizeof(t_command));
+    cmd1->argv = (char *[]){"ls", "-l", NULL};
+    cmd1->redir = NULL;
+    
+    t_command *cmd2 = malloc(sizeof(t_command));
+    cmd2->argv = (char *[]){"grep", "42", NULL};
+    cmd2->redir = NULL;
+    
+    cmd1->next = cmd2;
+    cmd2->next = NULL;
+    
+    pl->commands = cmd1;
+    return pl;
+}
+
+
+Now you can call:
+
+t_pipeline *pl = mock_pipeline();
+execute_pipeline(pl);
+
+
+And later, when his parser is ready, just swap mock_pipeline() with parse(line).
+
+⚖️ Why this works well
+
+Keeps your work decoupled: you don’t wait for him.
+
+Mimics the real data flow: parser → AST/struct → executor.
+
+Norminette safe: short structs, snake_case, no globals.
+
+Flexible: supports pipes, redirections, background jobs.
+
+👉 Do you want me to also sketch how expansion (env + globbing) fits in this struct, so your executor only needs to handle “final argv arrays” without caring about expansion logic?
+
+You said:
+I am trying to compare this structs with those two you created based on the book... Need to understand better before send any proposition 
+ChatGPT said:
+
+Good strategy 👍 Before you propose a struct layout to your teammate, it’s smart to see how the book’s structs (the “Command” and “SimpleCommand”) compare with the 42-style version I sketched. Let’s break them down carefully:
+
+📘 Book structs (simplified from Intro to Systems Programming)
+struct SimpleCommand {
+  int _numberOfAvailableArguments;
+  int _numberOfArguments;
+  char **_arguments;
+  void insertArgument(char *argument);
+};
+
+struct Command {
+  int _numberOfAvailableSimpleCommands;
+  int _numberOfSimpleCommands;
+  SimpleCommand **_simpleCommands;
+  char *_outFile;
+  char *_inputFile;
+  char *_errFile;
+  int _background;
+  void insertSimpleCommand(SimpleCommand *simpleCommand);
+};
+
+
+SimpleCommand ≈ one program (ls -l) → stores its arguments.
+
+Command ≈ a whole pipeline of SimpleCommands (e.g., ls -l | grep 42) + redirections + background flag.
+
+🟢 My 42-style structs
+typedef struct s_redir {
+    char            *filename;
+    int             type;   // <, >, >>, << 
+    struct s_redir  *next;
+}   t_redir;
+
+typedef struct s_command {
+    char            **argv;      // ["ls", "-l", NULL]
+    t_redir         *redir;      // linked list of redirections
+    struct s_command *next;      // next command in a pipeline
+}   t_command;
+
+typedef struct s_pipeline {
+    t_command   *commands;   // linked list of commands connected by pipes
+    int         background;  // 1 if ends with &
+}   t_pipeline;
+
+
+t_command ≈ the book’s SimpleCommand (argv only).
+
+t_pipeline ≈ the book’s Command (pipeline + redirs + bg flag).
+
+🔍 Key differences
+Concept	Book (C++ style)	42-style (C style)
+Arguments	char **_arguments inside SimpleCommand	char **argv inside t_command
+Pipelines	Command holds an array of SimpleCommand *	t_pipeline has linked list of t_command
+Redirections	Three separate fields: _outFile, _inFile, _errFile	General t_redir linked list (flexible, supports multiple)
+Background execution	int _background in Command	int background in t_pipeline
+Memory model	Dynamic arrays with insertArgument() / insertSimpleCommand()	Linked lists (simpler, 42-friendly, avoids realloc)
+Naming	CamelCase + underscores (C++ style)	snake_case (argv, redir)
+⚖️ Why adapt it
+
+Book style is educational, shows how to grow arrays dynamically (good for C++/OOP thinking).
+
+42 style is more practical for C + Norminette:
+
+Linked lists are simpler than manual realloc.
+
+No “methods” inside structs.
+
+Naming conventions (t_command, argv).
+
+👉 So structurally, they represent the same idea:
+
+A pipeline of commands, each with arguments + redirections + flags.
+
+The main difference is how they store them (arrays vs linked lists).
+
+Would you like me to draw a visual diagram (boxes/arrows) showing how ls -l | grep 42 > out.txt & looks in both struct designs? That might make the comparison click instantly.
+
+You said:
+Yeah. Show me how you imagine this thing working
+ChatGPT said:
+
+Alright, let’s make it visual 🚀
+
+Suppose the command line is:
+
+ls -l | grep 42 > out.txt &
+
+📘 Book’s Structs (array-based)
+Command
+ ├─ _simpleCommands (array of SimpleCommand*)
+ │   ├─ [0] → SimpleCommand
+ │   │        _arguments = ["ls", "-l", NULL]
+ │   └─ [1] → SimpleCommand
+ │            _arguments = ["grep", "42", NULL]
+ ├─ _outFile   = "out.txt"
+ ├─ _inputFile = NULL
+ ├─ _errFile   = NULL
+ └─ _background = 1
+
+
+Command = the whole pipeline
+
+SimpleCommand = one stage (ls -l or grep 42)
+
+Redirections are just three fields
+
+Pipelines are represented as an array of commands
+
+🟢 42-style Structs (linked list)
+t_pipeline
+ ├─ background = 1
+ └─ commands (linked list of t_command)
+      ├─ t_command (for "ls -l")
+      │    ├─ argv = ["ls", "-l", NULL]
+      │    ├─ redir = NULL
+      │    └─ next → t_command (for "grep 42")
+      │
+      └─ t_command (for "grep 42")
+           ├─ argv = ["grep", "42", NULL]
+           ├─ redir (linked list of t_redir)
+           │    └─ t_redir { type = output, filename = "out.txt" }
+           └─ next = NULL
+
+
+t_pipeline = top-level wrapper (so you can extend later with multiple pipelines, job control, etc.)
+
+t_command = one stage in the pipeline
+
+Redirections handled by a linked list of t_redir (so you can have multiple, e.g., 2> err.txt 1> out.txt)
+
+Pipelines handled by linked list of t_command instead of an array
+
+⚖️ Practical comparison
+
+The book version is compact, educational, but not 42-friendly:
+
+Arrays → need dynamic resizing
+
+Hard-coded _outFile, _inputFile, _errFile
+
+The 42 version is flexible, modular, and Norminette-safe:
+
+Linked lists → no realloc headaches
+
+Redir list → supports unlimited redirections
+
+snake_case naming
+
+👉 Big picture:
+Both designs represent the same tree:
+
+ls -l → pipe → grep 42 → redirect stdout to out.txt → run in background.
+
+The only difference is data layout.
+
+Would you like me to also sketch the execution flow on top of these structs (like: expand args → set up redirs → fork/exec each command in the pipeline)? That would connect the data with your execution part.
