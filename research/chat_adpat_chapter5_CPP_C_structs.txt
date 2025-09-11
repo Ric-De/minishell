@@ -440,3 +440,685 @@ ls -l → pipe → grep 42 → redirect stdout to out.txt → run in background.
 The only difference is data layout.
 
 Would you like me to also sketch the execution flow on top of these structs (like: expand args → set up redirs → fork/exec each command in the pipeline)? That would connect the data with your execution part.
+
+
+
+-----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+
+Today 11/09/2025 Between 1200hs-1800hs
+
+Hey, I read more stuff, watched a few videos and I still lost in this project. 
+
+Let's go again. I need to build a blackbox to give me the commands already parsed by my classmate. This black box will be the structs holding the commands and things that my mate will parse. So I build the structs and fill them with some command line shit like you put in an example above. OK.
+
+Next step is to do what?
+
+I need to start to take this inputs from the structs and "expand" them into real commands and their attributes to after execute them as a built in (where I need to make functions that reproduce the command behavior) or execute them as a command shell (like ls, grep, awk, etc) only redirecting them to the path in the user/bin address and finally if in the middle of these comes a pipe I need to make this happen to.
+
+I little bit foggy, but I think I'm growing slowly.... 
+
+Please guide me in this quest. Also, Where To Start? oohhhh
+ChatGPT said:
+
+This is exactly the right moment to slow down, take a deep breath 😮‍💨, and lay out a roadmap.
+You’re not lost — you’re at the stage where the big picture feels fuzzy because it’s big. Let’s make it clear step by step.
+
+🗺️ Big Picture of Minishell (Your Half)
+1️⃣ Input → Parser (your teammate)
+
+Your teammate eventually gives you a t_pipeline * (or similar struct) that describes:
+
+commands (argv)
+
+redirections (< > >> <<)
+
+pipes (linked commands)
+
+background flag (&)
+
+For now, you fake this part with a blackbox generator. ✅
+
+2️⃣ Expansion Phase (Your First Real Task)
+
+Take the parser output and transform it into a fully expanded set of arguments.
+
+Things to expand:
+
+Environment variables (echo $HOME → echo /Users/you)
+
+Tilde expansion (~ → /home/user)
+
+Wildcards (globbing) (*.c → file1.c file2.c)
+
+After expansion, your argv arrays are ready for execution.
+
+3️⃣ Execution Phase
+
+You must run each command in the pipeline:
+
+Redirections:
+
+Set up input/output before running each command. (dup2(), open(), close())
+
+Pipes:
+
+Create pipe with pipe(fd), connect stdout of command N to stdin of command N+1.
+
+Builtins:
+
+If argv[0] matches a builtin (cd, echo, export, etc.), call your function directly in the parent process (no execve).
+
+External programs:
+
+If not builtin, fork() → execve() with argv[0] resolved through $PATH.
+
+4️⃣ Signals & Control
+
+Ignore Ctrl-C in parent, but allow child to receive it.
+
+Handle Ctrl-\ properly (42 requirement).
+
+Restore default signals in children before execve().
+
+🛠 Step-by-Step Roadmap (Where to Start)
+
+Here’s how I’d suggest you proceed — incremental, testable steps:
+
+🥾 Step 0: Build the Blackbox
+
+Make a function that returns a fake t_pipeline for testing:
+
+t_pipeline *mock_pipeline(void);
+
+
+Start with very simple cases:
+
+One command: echo hello
+
+Two commands piped: ls -l | wc -l
+
+Command with redirect: cat < infile > outfile
+
+You should be able to print the contents of the struct to confirm it looks right.
+
+🛠 Step 1: Implement Expansion
+
+Write:
+
+void expand_pipeline(t_pipeline *pl);
+
+
+Start small:
+
+Implement $VAR expansion with getenv()
+
+Implement tilde (~) expansion manually with getenv("HOME")
+
+Implement globbing with opendir(), readdir(), and fnmatch() (or regex if you prefer)
+
+Test: Call expand_pipeline() on your mock pipeline and print the results.
+
+🛠 Step 2: Implement Simple Command Execution
+
+Write a function to execute a single command (no pipes, no redirs):
+
+void execute_command(t_command *cmd);
+
+
+Steps:
+
+Check if builtin → call builtin function
+
+Else → fork() + execve()
+
+Parent waits (if not background)
+
+Test with:
+
+echo hello
+/bin/ls
+env
+
+🛠 Step 3: Add Redirections
+
+Before running execve():
+
+If cmd->redir contains > → open file, dup2(fd, STDOUT_FILENO)
+
+If < → open file, dup2(fd, STDIN_FILENO)
+
+Test with:
+
+echo hello > file.txt
+cat < file.txt
+
+🛠 Step 4: Add Pipes
+
+Handle multiple commands connected with |.
+Algorithm:
+
+Create a pipe for each connection
+
+Fork for each command
+
+Wire up dup2() so output of cmd[i] goes to input of cmd[i+1]
+
+Test with:
+
+ls -l | grep ".c" | wc -l
+
+🛠 Step 5: Handle Background (&)
+
+If pl->background is set, do not wait for the last process.
+
+Print its PID so the user can see it’s running.
+
+🛠 Step 6: Implement Builtins
+
+Write functions for:
+
+echo
+
+cd
+
+pwd
+
+export
+
+unset
+
+env
+
+exit
+
+These should work without forking (except maybe echo).
+
+🛠 Step 7: Add Signal Handling
+
+Use signal(SIGINT, handler) to ignore Ctrl-C in parent shell
+
+Reset default signal handlers in child before execve()
+
+🧠 Key Advice
+
+Focus on one step at a time.
+Don’t try to make pipes + redirections + expansion work all at once.
+
+Always test with your mock data.
+Don’t wait for your teammate — by the time they deliver their parser, your executor will be rock solid.
+
+Print, print, print.
+At every stage, print your structs, argv arrays, redirections — you’ll thank yourself later.
+
+Would you like me to draw a mini flow diagram (from “struct filled” → “expansion” → “execution” → “wait/cleanup”) so you have a visual reference on how the data flows through your code? This really helps when things start getting complicated.
+
+You said:
+yes
+ChatGPT said:
+
+Perfect — let’s make it visual so you have a mental map 🗺️ of what your code will be doing.
+
+🔄 Data Flow of Your Minishell (Your Half)
+ ┌──────────────────────┐
+ │  Parser / Mock Box   │   ← (for now, you fake this part)
+ │ returns t_pipeline * │
+ └─────────┬────────────┘
+           │
+           ▼
+ ┌──────────────────────┐
+ │   Expansion Phase    │
+ │ expand_pipeline()    │
+ │  - env vars ($HOME)  │
+ │  - tilde (~)         │
+ │  - wildcards (*.c)   │
+ └─────────┬────────────┘
+           │
+           ▼
+ ┌──────────────────────┐
+ │  Execution Phase     │
+ │ execute_pipeline()   │
+ │                     │
+ │ For each t_command: │
+ │   1) set up stdin/stdout (redirections or pipe)
+ │   2) check builtin?
+ │       - yes → call builtin function (no fork)
+ │       - no  → fork + execve()
+ │   3) parent closes fds, waits (unless background)
+ └─────────┬────────────┘
+           │
+           ▼
+ ┌──────────────────────┐
+ │ Wait / Cleanup       │
+ │ - waitpid() children │
+ │ - free pipeline      │
+ │ - reset signals      │
+ └──────────────────────┘
+
+🏁 Example Walkthrough (ls -l | grep 42 > out.txt &)
+
+Mock Parser Output:
+t_pipeline
+→ 2 t_command linked together (ls → grep)
+→ redirection list in grep → out.txt
+→ background = 1
+
+Expansion Phase:
+
+No env vars, no wildcards here → argv unchanged
+
+Execution Phase:
+
+Create pipe
+
+Fork child1 → set stdout to pipe write end → execve("ls", ["ls","-l",NULL])
+
+Fork child2 → set stdin to pipe read end, stdout to out.txt → execve("grep", ["grep","42",NULL])
+
+Parent doesn’t wait (background=1), just prints PIDs
+
+Cleanup:
+
+Close pipe ends in parent
+
+Free memory
+
+Return prompt
+
+📌 Why this is helpful
+
+You can code each block as its own function and test independently:
+
+expand_pipeline()
+
+execute_pipeline()
+
+execute_command()
+
+setup_redirections()
+
+setup_pipes()
+
+By isolating steps, you’ll keep the project manageable and Norminette-friendly.
+
+Would you like me to sketch a very small “skeleton code” that wires these phases together — so you can already compile/run and print debug output before even implementing them? That way you’ll have a working scaffold to fill in.
+
+You said:
+yes
+ChatGPT said:
+
+Awesome — let’s build you a working skeleton 🏗️ so you can start coding right away, even before your parser mate finishes their part.
+
+This is not the final code, but a “playground” you can expand step by step.
+
+🟢 Skeleton Code (Minimal, Norminette-Friendly)
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+/* -----------------------
+   STRUCT DEFINITIONS
+----------------------- */
+
+typedef struct s_redir
+{
+    char            *filename;
+    int             type; // 0=<, 1=>, 2=>>, 3=<<
+    struct s_redir  *next;
+}   t_redir;
+
+typedef struct s_command
+{
+    char                **argv;   // ["ls", "-l", NULL]
+    t_redir             *redir;  // linked list of redirections
+    struct s_command    *next;   // next command in pipeline
+}   t_command;
+
+typedef struct s_pipeline
+{
+    t_command   *commands;
+    int         background;  // 1 if ends with &
+}   t_pipeline;
+
+/* -----------------------
+   MOCK PIPELINE BUILDER
+----------------------- */
+
+t_pipeline *mock_pipeline(void)
+{
+    t_pipeline *pl = malloc(sizeof(t_pipeline));
+    if (!pl)
+        return (NULL);
+    pl->background = 0;
+
+    // command 1: ls -l
+    t_command *cmd1 = malloc(sizeof(t_command));
+    cmd1->argv = (char *[]){"ls", "-l", NULL};
+    cmd1->redir = NULL;
+
+    // command 2: grep ".c"
+    t_command *cmd2 = malloc(sizeof(t_command));
+    cmd2->argv = (char *[]){"grep", ".c", NULL};
+    cmd2->redir = NULL;
+
+    cmd1->next = cmd2;
+    cmd2->next = NULL;
+    pl->commands = cmd1;
+    return pl;
+}
+
+/* -----------------------
+   EXPANSION PHASE (stub)
+----------------------- */
+
+void expand_pipeline(t_pipeline *pl)
+{
+    (void)pl;
+    printf("[expand] Expanding vars and wildcards... (not implemented yet)\n");
+}
+
+/* -----------------------
+   EXECUTION PHASE (stub)
+----------------------- */
+
+void execute_pipeline(t_pipeline *pl)
+{
+    t_command *cmd = pl->commands;
+    while (cmd)
+    {
+        printf("[exec] Command: ");
+        for (int i = 0; cmd->argv[i]; i++)
+            printf("%s ", cmd->argv[i]);
+        printf("\n");
+        cmd = cmd->next;
+    }
+}
+
+/* -----------------------
+   MAIN
+----------------------- */
+
+int main(void)
+{
+    t_pipeline *pl = mock_pipeline();
+    if (!pl)
+        return (1);
+
+    expand_pipeline(pl);
+    execute_pipeline(pl);
+
+    // free memory later
+    return (0);
+}
+
+🧪 What This Gives You
+
+When you run:
+
+gcc minishell_skeleton.c -o minishell && ./minishell
+
+
+You’ll see:
+
+[expand] Expanding vars and wildcards... (not implemented yet)
+[exec] Command: ls -l 
+[exec] Command: grep .c
+
+
+This means your data flow is already working:
+
+Blackbox generates a fake parsed pipeline
+
+Expansion phase is called
+
+Execution phase iterates over commands and prints them
+
+🏗️ How to Grow It Step by Step
+
+Expand Phase:
+Replace the stub in expand_pipeline() with:
+
+$VAR expansion
+
+~ expansion
+
+wildcard expansion
+
+Execution Phase:
+Replace the print loop in execute_pipeline() with:
+
+If one command → just fork/execve
+
+If multiple commands → add pipes, dup2, fork for each
+
+Add redirection support before execve
+
+Add builtin detection (if (strcmp(cmd->argv[0], "cd") == 0) → run cd)
+
+Memory Management:
+After you’re confident, add a cleanup function to free the structs.
+
+This approach gives you a working harness you can use right now.
+When your teammate delivers the real parser, you just replace mock_pipeline() with parse_pipeline(user_input) and everything else stays the same. ✅
+
+Would you like me to also include signal handling skeletons (ignore SIGINT in parent, reset in child) so you can drop them in later and not forget?
+
+You said:
+I'm thinking in files and folders. I need to separate this project in two. Mandatory part and bonus part. The bonus part will be the mandatory with the stuff for bonus added over it.
+So I'm creating a folder:
+minishell
+mandatory
+ChatGPT said:
+
+Yes! That’s exactly the right approach — keep mandatory and bonus physically separated so you can finish the mandatory, pass Norminette, and then layer bonus features on top without breaking what already works.
+
+Here’s how I’d suggest structuring your project
+
+You said:
+I'm thinking in files and folders. I need to separate this project in two. Mandatory part and bonus part. The bonus part will be the mandatory with the stuff for bonus added over it. So I'm creating a folder:
+minishell
+                  |____ /mandatory
+                                                  | /includes
+                                                  | src
+                                                  | /libft
+                   |____ /bonus
+                                              | /includes
+                                              | /src
+                                              | /libft
+
+Now, I need to start from the main as any other program I had built, but now with a fake call to the first phases of parsing and the other things. From this step I get into my black box fake machine and start to create other files to process from the simplest entry's to complex ones. However, I need to have my structure and way of coding see beyond the mandatory part being also prepared for the elements of the bonus.
+ChatGPT said:
+
+Cool, good plan! You’re thinking clearly. Let me help you refine the folder structure and suggest how to organize files, so both mandatory and bonus can be maintained cleanly, and so what you build for mandatory is reusable for bonus. I’ll also pull in some norms/rules from 42 so you don’t break style.
+
+⚙️ 42 Norm / Rules That Affect Structure
+
+Before going into the structure, a few rules from the 42 “Norm” that will influence how you arrange your files / code:
+
+File & directory names: only lowercase letters (a-z), digits, and underscores. No uppercase. 
+s.dou.ua
+
+Types (typedef struct ...) must start t_, struct names s_, enum e_, etc. 
+s.dou.ua
+
+Function and variable names: snake_case, lowercase, meaningful. 
+s.dou.ua
+
+Max 25 lines per function. Lines max 80 chars. 
+s.dou.ua
+
+Headers: separate .h files for function declarations, struct definitions, etc. Include guards, etc. 
+s.dou.ua
+
+Knowing these, your file/folder layout should allow compliance.
+
+📂 Proposed Folder/File Structure
+
+Your idea is good. Here’s a refined version, with suggestions, building on what you have:
+
+minishell/
+  ├ mandatory/
+  │   ├ includes/
+  │   │    ├ types.h
+  │   │    ├ redir.h
+  │   │    ├ command.h
+  │   │    ├ builtin.h
+  │   │    └ expansion.h
+  │   ├ src/
+  │   │    ├ main.c
+  │   │    ├ prompt.c
+  │   │    ├ expansion/
+  │   │    │   ├ expansion_env.c
+  │   │    │   ├ expansion_wildcard.c
+  │   │    │   └ expansion_utils.c
+  │   │    ├ executor/
+  │   │    │   ├ execute_pipeline.c
+  │   │    │   ├ execute_command.c
+  │   │    │   └ redirection.c
+  │   │    ├ builtin/
+  │   │    │   ├ builtin_cd.c
+  │   │    │   ├ builtin_echo.c
+  │   │    │   └ builtin_utils.c
+  │   │    ├ signals.c
+  │   │    └ utils/
+  │   │         ├ path_lookup.c
+  │   │         ├ memory_helpers.c
+  │   │         └ free_helpers.c
+  │   ├ libft/
+  │   │   └ ...  (usual libft files)
+  │   ├ Makefile
+  │   └ README.md
+  ├ bonus/
+  │   ├ includes/     (you can reuse most headers; maybe bonus_specific.h etc.)
+  │   ├ src/
+  │   │    ├ bonus_features/
+  │   │    │    ├ logical_ops.c    (&&, ||)
+  │   │    │    ├ parentheses.c
+  │   │    │    └ other_bonus.c
+  │   │    └ (others: reuse executor, expansion, builtin from mandatory with modifications if needed)
+  │   ├ libft/
+  │   ├ Makefile       (could override or extend from mandatory)
+  │   └ README.md
+  ├ .gitignore
+  └ overall Makefile   (optional, possibly for building both)
+
+
+🔁 What to Reuse / Share Between Mandatory & Bonus
+
+To avoid duplication:
+
+Put shared code (expansion, executor, builtin etc.) under mandatory/. Bonus should link / include / depend on that, not duplicate unless necessary.
+
+Headers for shared parts go under mandatory/includes. Bonus includes those headers too.
+
+If bonus needs some new utilities or changes, place them in bonus/src/bonus_features. Maybe some wrapper functions or extended behavior hooked into the shared code paths.
+
+🚀 Workflow / Where to Start for You
+
+Given your division of labor, here’s how I'd start using this structure:
+
+Set up the skeleton for mandatory
+
+Create the directories and empty skeleton files (main.c, prompt, executor stubs, expansion stubs, builtin stubs, utils).
+
+Write headers (.h) for each logical module: command types, redirection, builtin, expansion, etc.
+
+Implement blackbox names / mocks
+
+In main.c, call a mock_pipeline() or something that uses your types.h structs.
+
+Print / debug inside main or a print_pipeline() util function to verify structure.
+
+Implement minimal mandatory features in phases
+
+Phase A: builtins environment and path lookup (simple commands without pipes or redirection)
+
+Phase B: redirections (<, >)
+
+Phase C: pipes
+
+Phase D: signals
+
+Test thoroughly each feature. Use the mock example + maybe hardcoded inputs.
+
+Once mandatory works, then move into bonus:
+
+Add logical operators (&&, ||)
+
+Parentheses
+
+Other bonus requirements
+
+🔍 Checkpoints & Good Practices
+
+Keep functions short. One job per function. If a function is doing parsing + redirections + signals + builtins, break it down.
+
+Use meaningful names. (e.g., execute_pipeline, handle_redirection, builtin_cd)
+
+Headers should only contain what’s needed (structs, prototypes). No definitions.
+
+Free all memory. Even if mock pipeline, set the habit of freeing.
+
+Compose Makefile so you can build mandatory alone, and build bonus including mandatory. Maybe separate build rules.
+
+If you like, I can prepare a concrete starter Makefile that builds mandatory and bonus targets, and maybe a template types.h and command.h you both can agree on, so you can send it to your teammate. You think that will help?
+
+You said:
+First what is stub(s)?
+ChatGPT said:
+
+A “stub” in programming is basically a placeholder — a small bit of code that stands in for a part of your program that isn’t built yet (or that you don’t want to run / depend on yet). 
+Webopedia
++3
+courses.cs.umbc.edu
++3
+Techopedia
++3
+
+Here are more details + how it works in your minishell project.
+
+📚 What a stub is, more precisely
+
+A stub has the right interfaces (functions, structs, return types), but doesn’t do full or final behavior. Sometimes it does almost nothing or returns fixed/fake data. 
+Wikipedia
++2
+courses.cs.umbc.edu
++2
+
+It lets you compile and test parts of your program, even if other parts you depend on aren’t done. 
+courses.cs.umbc.edu
+
+It’s used a lot in development and testing – to isolate modules, to simulate behavior, to keep moving forward. 
+Developer
++2
+Wikipedia
++2
+
+🔍 Examples of stubs
+
+A function like:
+
+int parse_pipeline(char *input, t_pipeline *out) {
+    // real implementation not ready
+    return 0; // stub just returns success without doing anything
+}
+
+
+Or in your case, a stub that builds a fake t_pipeline struct rather than receiving one from the parser.
+
+🧩 Why stubs are useful for your project
+
+You said your part of the project depends on what your teammate does (lexer/parser), but that isn’t finished yet. So:
+
+You make a stub that stands in for “parser output”.
+
+It builds and returns a t_pipeline * with some commands you want to test (mock pipeline).
+
+That stub lets you start working on expansion, execution, builtins, signals, etc., without waiting for parser.
+
+Later, when parser is ready, you replace the stub with the real parser call. Since you agreed on common structs/interfaces, everything else (your code) works unchanged.
+
+If you like, I can write a few concrete stub examples in C for minishell (for parser, maybe for builtins) so you see how they’d look. Want me to do that?
+
+-------------------------------------------------------------------------
