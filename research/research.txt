@@ -54,8 +54,12 @@
 	 he went through. I need to confess that I was expecting something more deep. For that
 	, he shows is code at github. Need to look there, I imagine, that obviously, the code
 	 explain it self.
-	
 
+	* Minishell: Building a mini-bash (a 42 project) by zlaarous 35min read/Apr 28, 2024
+	https://medium.com/@zouhairlrs/minishell-building-a-mini-bash-a-42-project-5dc20d671fbb
+	
+	* Writing a bash-like shell in C - by Ali Naqvi Mar 2025 - gitrepo below
+	https://www.alimnaqvi.com/blog/minishell
 
 
 
@@ -72,6 +76,9 @@
 
 	* The Open Group Base Specifications Issue 7, 2018 edition	- Like the bash manual
 	https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html
+
+	* Xv6, a simple Unix-like teaching operating system	// xv6 - hhp3 video
+	https://pdos.csail.mit.edu/6.828/2025/xv6.html
 
 	* Building shells with a grain od salt by Julian Squires-2017
 	https://www.cipht.net/2017/10/17/build-your-own-shell.html
@@ -144,6 +151,12 @@
 	* Javier BCN42
 	* https://github.com/m4nnb3ll/minishell (mannbell) the guy of the article
 	* https://github.com/tokenrove/build-your-own-shell/tree/master (Julian Squire)
+	* https://github.com/mit-pdos/xv6-public // deprecated xv6 explained by hhp3 is here
+	* https://github.com/mit-pdos/xv6-riscv	// This still maintened
+
+	* https://github.com/cclaude42/minishell
+	* https://git.chevro.fr/42-cestoliv/minishell	
+	* https://github.com/alimnaqvi/minishell
 
 	### Any useful piece of shit
 
